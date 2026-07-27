@@ -1,4 +1,8 @@
 package com.app.exception;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,15 +14,20 @@ import com.app.dto.response.ApiResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse> handleResourceAlreadyExists(
-            ResourceAlreadyExistsException ex){
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<Map<String,String>> handleValidation(
+	        MethodArgumentNotValidException ex){
 
-        ApiResponse response =
-                new ApiResponse(false, ex.getMessage());
+	    Map<String,String> errors = new HashMap<>();
 
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+	    ex.getBindingResult().getFieldErrors().forEach(error->{
 
-    }
+	        errors.put(error.getField(), error.getDefaultMessage());
+
+	    });
+
+	    return new ResponseEntity<>(errors,HttpStatus.BAD_REQUEST);
+
+	}
 
 }

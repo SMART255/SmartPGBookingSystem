@@ -12,7 +12,7 @@ import com.app.enums.Role;
 import com.app.enums.Status;
 import com.app.repository.UserRepository;
 import com.app.service.UserService;
-
+import com.app.exception.ResourceAlreadyExistsException;
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -24,16 +24,15 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
     @Override
     public UserResponse register(RegisterUserRequest request) {
 
-        if(userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ResourceAlreadyExistsException("Email already exists");
         }
 
-        if(userRepository.existsByPhone(request.getPhone())) {
-            throw new RuntimeException("Phone already exists");
+        if (userRepository.existsByPhone(request.getPhone())) {
+            throw new ResourceAlreadyExistsException("Phone already exists");
         }
 
         User user = new User();
@@ -73,7 +72,7 @@ public class UserServiceImpl implements UserService {
         response.setStatus(savedUser.getStatus());
 
         return response;
-
     }
+  
 
 }
