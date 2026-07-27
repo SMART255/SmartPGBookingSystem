@@ -7,6 +7,7 @@ import com.app.dto.request.LoginRequest;
 import com.app.dto.response.LoginResponse;
 import com.app.entity.User;
 import com.app.repository.UserRepository;
+import com.app.security.JwtUtil;
 import com.app.service.AuthService;
 
 @Service
@@ -14,13 +15,16 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public AuthServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            JwtUtil jwtUtil) {
 
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    			this.userRepository = userRepository;
+    			this.passwordEncoder = passwordEncoder;
+    			this.jwtUtil = jwtUtil;
+}
 
     @Override
     public LoginResponse login(LoginRequest request) {
@@ -33,10 +37,11 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid Email or Password");
         }
 
+        String token = jwtUtil.generateToken(user.getEmail());
+
         return new LoginResponse(
-                "Login Successful",
-                user.getEmail(),
-                user.getRole().name()
-        );
-    }
+                token,
+                "Login Successful"
+        ); 
+       }
 }

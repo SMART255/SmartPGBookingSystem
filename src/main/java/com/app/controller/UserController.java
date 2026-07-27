@@ -28,5 +28,11 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
+    
+    @GetMapping("/profile")
+    public ResponseEntity<String> profile() {
+
+        return ResponseEntity.ok("Welcome User");
+    }
 
 }
