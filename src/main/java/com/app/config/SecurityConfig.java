@@ -18,7 +18,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
 
                 // Public APIs
-                .requestMatchers("/user/register").permitAll()
+                .requestMatchers(
+                        "/user/register",
+                        "/auth/login"
+                ).permitAll()
 
                 // All other APIs require authentication
                 .anyRequest().authenticated()
