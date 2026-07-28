@@ -1,8 +1,9 @@
 package com.app.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.app.dto.request.RegisterUserRequest;
@@ -19,20 +20,47 @@ public class UserController {
         this.userService = userService;
     }
 
+    // Register User
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(
-            @Validated @RequestBody RegisterUserRequest request) {
+    public ResponseEntity<UserResponse> registerUser(
+            @RequestBody RegisterUserRequest request) {
 
         UserResponse response = userService.register(request);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
-
-    }
-    
-    @GetMapping("/profile")
-    public ResponseEntity<String> profile() {
-
-        return ResponseEntity.ok("Welcome User");
     }
 
+    // Get User By ID
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    // Get All Users
+    @GetMapping("/all")
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    // Update User
+    @PutMapping("/update/{id}")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable Long id,
+            @RequestBody RegisterUserRequest request) {
+
+        return ResponseEntity.ok(userService.updateUser(id, request));
+    }
+
+    // Delete User
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteUser(
+            @PathVariable Long id) {
+
+        userService.deleteUser(id);
+
+        return ResponseEntity.ok("User Deleted Successfully");
+    }
 }

@@ -1,4 +1,5 @@
 package com.app.entity;
+import java.util.List;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +9,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "owners")
+@Table(name = "owner")
 @Data
 public class Owner {
 
@@ -25,7 +26,7 @@ public class Owner {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(length = 100)
     private String password;
 
     @Column(nullable = false, unique = true)
@@ -46,4 +47,7 @@ public class Owner {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+    
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<PG> pgs;
 }
