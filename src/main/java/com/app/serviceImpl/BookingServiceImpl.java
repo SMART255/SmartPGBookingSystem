@@ -93,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponse> getBookingsByUser(Long userId) {
 
-        return bookingRepository.findByUserId(userId)
+        return bookingRepository.findByUser_Id(userId)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -102,7 +102,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponse> getBookingsByPG(Long pgId) {
 
-        return bookingRepository.findByPgId(pgId)
+        return bookingRepository.findByPg_Id(pgId)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
