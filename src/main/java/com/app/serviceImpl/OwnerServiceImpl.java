@@ -1,6 +1,7 @@
 package com.app.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,77 @@ public class OwnerServiceImpl implements OwnerService {
         response.setAddress(savedOwner.getAddress());
         response.setVerified(savedOwner.isVerified());
         response.setStatus(savedOwner.getStatus());
+
+        return response;
+    }
+    
+    @Override
+    public OwnerResponse getOwnerById(Long id) {
+
+        Owner owner = ownerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        return mapToResponse(owner);
+    }
+    
+    @Override
+    public List<OwnerResponse> getAllOwners() {
+
+        return ownerRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+    
+    @Override
+    public OwnerResponse updateOwner(Long id,
+                                     RegisterOwnerRequest request) {
+
+        Owner owner = ownerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        owner.setFirstName(request.getFirstName());
+        owner.setLastName(request.getLastName());
+        owner.setEmail(request.getEmail());
+        owner.setPhone(request.getPhone());
+        owner.setGender(request.getGender());
+        owner.setAddress(request.getAddress());
+
+        if (request.getPassword() != null &&
+            !request.getPassword().isBlank()) {
+
+            owner.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        owner.setUpdatedAt(LocalDateTime.now());
+
+        Owner updatedOwner = ownerRepository.save(owner);
+
+        return mapToResponse(updatedOwner);
+    }
+    
+    @Override
+    public void deleteOwner(Long id) {
+
+        Owner owner = ownerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        ownerRepository.delete(owner);
+    }
+    
+    private OwnerResponse mapToResponse(Owner owner) {
+
+        OwnerResponse response = new OwnerResponse();
+
+        response.setId(owner.getId());
+        response.setFirstName(owner.getFirstName());
+        response.setLastName(owner.getLastName());
+        response.setEmail(owner.getEmail());
+        response.setPhone(owner.getPhone());
+        response.setGender(owner.getGender());
+        response.setAddress(owner.getAddress());
+        response.setVerified(owner.isVerified());
+        response.setStatus(owner.getStatus());
 
         return response;
     }

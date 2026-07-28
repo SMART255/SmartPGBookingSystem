@@ -1,5 +1,7 @@
 package com.app.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -34,4 +36,34 @@ public class OwnerController {
     public ResponseEntity<String> dashboard() {
         return ResponseEntity.ok("Welcome Owner");
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<OwnerResponse> getOwnerById(@PathVariable Long id) {
+
+        return ResponseEntity.ok(ownerService.getOwnerById(id));
+    }
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<OwnerResponse>> getAllOwners() {
+
+        return ResponseEntity.ok(ownerService.getAllOwners());
+    }
+    
+    @PutMapping("/update/{id}")
+    public ResponseEntity<OwnerResponse> updateOwner(
+            @PathVariable Long id,
+            @RequestBody RegisterOwnerRequest request) {
+
+        return ResponseEntity.ok(ownerService.updateOwner(id, request));
+    }
+    
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteOwner(@PathVariable Long id) {
+
+        ownerService.deleteOwner(id);
+
+        return ResponseEntity.ok("Owner Deleted Successfully");
+    }
+    
+    
 }
