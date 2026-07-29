@@ -9,7 +9,6 @@ import com.app.entity.Owner;
 import com.app.repository.OwnerRepository;
 import com.app.security.JwtUtil;
 import com.app.service.AuthService;
-
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -26,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
         this.jwtUtil = jwtUtil;
     }
 
+
     @Override
     public LoginResponse login(LoginRequest request) {
 
@@ -33,11 +33,17 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() ->
                         new RuntimeException("Invalid Email or Password"));
 
-        if (!passwordEncoder.matches(request.getPassword(), owner.getPassword())) {
+
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                owner.getPassword())) {
+
             throw new RuntimeException("Invalid Email or Password");
         }
 
+
         String token = jwtUtil.generateToken(owner.getEmail());
+
 
         return new LoginResponse(
                 token,

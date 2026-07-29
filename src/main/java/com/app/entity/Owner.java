@@ -50,4 +50,7 @@ public class Owner {
     
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<PG> pgs;
+    
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Document> documents;
 }
