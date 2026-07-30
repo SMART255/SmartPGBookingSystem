@@ -1,5 +1,9 @@
 package com.app.entity;
 
+import java.time.LocalDateTime;
+
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,4 +27,6 @@ public class PGImage {
     @ManyToOne
     @JoinColumn(name = "pg_id")
     private PG pg;
+    
+    private LocalDateTime createdAt;
 }

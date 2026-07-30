@@ -45,7 +45,8 @@ public class SecurityConfig {
                         "/file/**",
                         "/email/**",
                         "/hello",
-                        "/error"
+                        "/error",
+                        "/image/**"
                 ).permitAll()
 
                 .anyRequest().authenticated()
