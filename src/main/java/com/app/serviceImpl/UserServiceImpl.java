@@ -1,32 +1,43 @@
 package com.app.serviceImpl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.app.dto.request.LoginRequest;
 import com.app.dto.request.RegisterUserRequest;
+import com.app.dto.response.LoginResponse;
 import com.app.dto.response.UserResponse;
 import com.app.entity.User;
 import com.app.enums.Role;
 import com.app.enums.Status;
 import com.app.exception.ResourceAlreadyExistsException;
 import com.app.repository.UserRepository;
+import com.app.security.JwtUtil;
+import com.app.service.EmailService;
 import com.app.service.UserService;
+import com.app.util.OtpUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final EmailService emailService;
 
     public UserServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            JwtUtil jwtUtil,
+            EmailService emailService) {
 
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
-
+    		this.userRepository = userRepository;
+    		this.passwordEncoder = passwordEncoder;
+    		this.jwtUtil = jwtUtil;
+    		this.emailService = emailService;
+}
     @Override
     public UserResponse register(RegisterUserRequest request) {
 
@@ -65,21 +76,40 @@ public class UserServiceImpl implements UserService {
             user.setRole(Role.USER);
             user.setStatus(Status.ACTIVE);
 
-            System.out.println("Step 4 : Saving User");
+            System.out.println("Step 4 : Generating OTP");
+
+            String otp = OtpUtil.generateOtp();
+
+            user.setOtp(otp);
+            user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
+            user.setEmailVerified(false);
+
+            System.out.println("Step 5 : Saving User");
 
             User savedUser = userRepository.save(user);
 
-            System.out.println("Step 5 : User Saved Successfully");
+            System.out.println("Step 6 : Sending OTP Email");
+
+            emailService.sendEmail(
+                    savedUser.getEmail(),
+                    "Smart PG Booking - Email Verification",
+                    "Hello " + savedUser.getFirstName()
+                            + ",\n\nYour OTP is : " + otp
+                            + "\n\nThis OTP is valid for 5 minutes."
+            );
+
+            System.out.println("Step 7 : Registration Completed");
 
             return mapToResponse(savedUser);
 
-        } catch (Exception e) {
+            } catch (Exception e) {
 
-            System.out.println("USER REGISTRATION FAILED");
-            e.printStackTrace();
+                System.out.println("USER REGISTRATION FAILED");
+                e.printStackTrace();
 
-            throw e;
-        }
+                throw e;
+            }
+            
     }
 
     @Override
@@ -160,5 +190,75 @@ public class UserServiceImpl implements UserService {
         response.setStatus(user.getStatus());
 
         return response;
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid Email"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid Password");
+        }
+
+        if (!user.isEmailVerified()) {
+            throw new RuntimeException("Please verify your email first.");
+        }
+
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return new LoginResponse(token, "Login Successful");
+    }
+
+    @Override
+    public String verifyOtp(String email, String otp) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getOtp() == null) {
+            return "OTP not generated.";
+        }
+
+        if (!user.getOtp().equals(otp)) {
+            return "Invalid OTP.";
+        }
+
+        if (user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            return "OTP Expired.";
+        }
+
+        user.setEmailVerified(true);
+        user.setOtp(null);
+        user.setOtpExpiry(null);
+
+        userRepository.save(user);
+
+        return "Email Verified Successfully.";
+    }
+
+    @Override
+    public String resendOtp(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String otp = OtpUtil.generateOtp();
+
+        user.setOtp(otp);
+        user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
+
+        userRepository.save(user);
+
+        emailService.sendEmail(
+                user.getEmail(),
+                "Smart PG Booking - New OTP",
+                "Hello " + user.getFirstName()
+                        + ",\n\nYour new OTP is : " + otp
+                        + "\n\nThis OTP is valid for 5 minutes."
+        );
+
+        return "New OTP Sent Successfully.";
     }
 }

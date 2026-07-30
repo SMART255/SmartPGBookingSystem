@@ -20,11 +20,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+
+        System.out.println("AUTH LOGIN CONTROLLER HIT");
 
         return ResponseEntity.ok(authService.login(request));
-
     }
 
 }

@@ -64,4 +64,19 @@ public class UserController {
 
         return ResponseEntity.ok("User Deleted Successfully");
     }
+    
+    @PostMapping("/verify-otp")
+    public ResponseEntity<String> verifyOtp(
+            @RequestParam String email,
+            @RequestParam String otp) {
+
+        return ResponseEntity.ok(userService.verifyOtp(email, otp));
+    }
+    
+    @PostMapping("/resend-otp")
+    public ResponseEntity<String> resendOtp(
+            @RequestParam String email) {
+
+        return ResponseEntity.ok(userService.resendOtp(email));
+    }
 }
