@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.app.dto.request.AddPGRequest;
 import com.app.dto.response.PGResponse;
+import com.app.enums.GenderAllowed;
 
 public interface PGService {
 
@@ -18,4 +19,14 @@ public interface PGService {
     PGResponse updatePG(Long id, AddPGRequest request);
 
     void deletePG(Long id);
+    
+    List<PGResponse> searchByCity(String city);
+
+    List<PGResponse> searchByGender(GenderAllowed gender);
+
+    List<PGResponse> searchByRent(Double rent);
+
+    List<PGResponse> searchByName(String name);
+
+    List<PGResponse> availablePGs();
 }

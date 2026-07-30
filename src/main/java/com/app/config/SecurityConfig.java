@@ -61,6 +61,10 @@ public class SecurityConfig {
 						
 						// Amenity
 						.requestMatchers("/amenity/**").permitAll()
+						
+						.requestMatchers("/file/**").permitAll()
+						
+						.requestMatchers("/wishlist/**").permitAll()
 
 						// Swagger (optional)
 						/*

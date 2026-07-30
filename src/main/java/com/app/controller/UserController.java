@@ -22,14 +22,14 @@ public class UserController {
 
     // Register User
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> registerUser(
-            @RequestBody RegisterUserRequest request) {
+    public ResponseEntity<?> registerUser(@RequestBody RegisterUserRequest request) {
+
+        System.out.println("Controller reached");
 
         UserResponse response = userService.register(request);
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
     // Get User By ID
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(
@@ -51,7 +51,8 @@ public class UserController {
             @PathVariable Long id,
             @RequestBody RegisterUserRequest request) {
 
-        return ResponseEntity.ok(userService.updateUser(id, request));
+        return ResponseEntity.ok(
+                userService.updateUser(id, request));
     }
 
     // Delete User

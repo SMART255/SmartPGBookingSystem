@@ -44,7 +44,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     	        || path.startsWith("/payment/")
     	        || path.startsWith("/review/")
     	        || path.startsWith("/document/")
-    			|| path.startsWith("/amenity/")){
+    	        || path.startsWith("/amenity/")
+    	        || path.startsWith("/file/")
+    	        || path.startsWith("/wishlist/")){
 
     	    filterChain.doFilter(request, response);
     	    return;

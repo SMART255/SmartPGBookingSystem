@@ -10,6 +10,7 @@ import com.app.dto.request.AddPGRequest;
 import com.app.dto.response.PGResponse;
 import com.app.entity.Owner;
 import com.app.entity.PG;
+import com.app.enums.GenderAllowed;
 import com.app.enums.Status;
 import com.app.repository.OwnerRepository;
 import com.app.repository.PGRepository;
@@ -96,7 +97,7 @@ public class PGServiceImpl implements PGService {
     @Override
     public List<PGResponse> getPGsByOwner(Long ownerId) {
 
-        return pgRepository.findByOwnerId(ownerId)
+        return pgRepository.findByOwner_Id(ownerId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -147,7 +148,55 @@ public class PGServiceImpl implements PGService {
 
         pgRepository.delete(pg);
     }
+    
+    
+    @Override
+    public List<PGResponse> searchByCity(String city) {
 
+        return pgRepository.findByCityIgnoreCase(city)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+    
+    
+    @Override
+    public List<PGResponse> searchByGender(String gender) {
+
+        return pgRepository.findByGenderAllowed(
+                GenderAllowed.valueOf(gender.toUpperCase()))
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+    
+    @Override
+    public List<PGResponse> searchByRent(Double rent) {
+
+        return pgRepository.findByRentPerMonthLessThanEqual(rent)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+    
+    
+    @Override
+    public List<PGResponse> searchByName(String name) {
+
+        return pgRepository.findByPgNameContainingIgnoreCase(name)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+    
+    @Override
+    public List<PGResponse> availablePGs() {
+
+        return pgRepository.findByAvailableRoomsGreaterThan(0)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
     // =========================
     // COMMON RESPONSE METHOD
     // =========================

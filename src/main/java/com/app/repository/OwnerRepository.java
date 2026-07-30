@@ -13,4 +13,6 @@ public interface OwnerRepository extends JpaRepository<Owner, Long> {
     boolean existsByPhone(String phone);
 
     Optional<Owner> findByEmail(String email);
+    
+    
 }
