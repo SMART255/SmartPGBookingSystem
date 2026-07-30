@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.app.dto.request.AddPGRequest;
 import com.app.dto.response.PGResponse;
+import com.app.enums.GenderAllowed;
 import com.app.service.PGService;
 
 @RestController
@@ -99,7 +100,7 @@ public class PGController {
     // =========================
     @GetMapping("/search/gender/{gender}")
     public ResponseEntity<List<PGResponse>> searchByGender(
-            @PathVariable String gender) {
+            @PathVariable GenderAllowed gender) {
 
         return ResponseEntity.ok(pgService.searchByGender(gender));
     }

@@ -9,7 +9,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,49 +34,59 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-    	String path = request.getServletPath();
+        String path = request.getServletPath();
 
-    	if (path.startsWith("/auth/")
-    	        || path.startsWith("/owner/")
-    	        || path.startsWith("/user/")
-    	        || path.startsWith("/pg/")
-    	        || path.startsWith("/room/")
-    	        || path.startsWith("/booking/")
-    	        || path.startsWith("/payment/")
-    	        || path.startsWith("/review/")
-    	        || path.startsWith("/document/")
-    	        || path.startsWith("/amenity/")
-    	        || path.startsWith("/file/")
-    	        || path.startsWith("/wishlist/")){
+        // Public APIs (Skip JWT Authentication)
+        if (path.startsWith("/auth/")
+                || path.startsWith("/owner/")
+                || path.startsWith("/user/")
+                || path.startsWith("/pg/")
+                || path.startsWith("/room/")
+                || path.startsWith("/booking/")
+                || path.startsWith("/payment/")
+                || path.startsWith("/review/")
+                || path.startsWith("/document/")
+                || path.startsWith("/amenity/")
+                || path.startsWith("/file/")
+                || path.startsWith("/wishlist/")
+                || path.startsWith("/email/")
+                || path.startsWith("/hello")
+                || path.startsWith("/test")) {
 
-    	    filterChain.doFilter(request, response);
-    	    return;
-    	}
-
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 
+        // No JWT present
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-
         String token = authHeader.substring(7);
+        String email = null;
 
-        String email = jwtUtil.extractUsername(token);
+        try {
+            email = jwtUtil.extractUsername(token);
+        } catch (ExpiredJwtException e) {
+            System.out.println("JWT Token Expired");
+            filterChain.doFilter(request, response);
+            return;
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("Invalid JWT Token");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-
-        if (email != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
-
+        if (email != null
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails =
                     userDetailsService.loadUserByUsername(email);
 
-
             if (jwtUtil.isTokenValid(token, userDetails.getUsername())) {
-
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -83,17 +94,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 null,
                                 userDetails.getAuthorities());
 
-
                 authentication.setDetails(
                         new WebAuthenticationDetailsSource()
                                 .buildDetails(request));
-
 
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
             }
         }
-
 
         filterChain.doFilter(request, response);
     }

@@ -161,10 +161,9 @@ public class PGServiceImpl implements PGService {
     
     
     @Override
-    public List<PGResponse> searchByGender(String gender) {
+    public List<PGResponse> searchByGender(GenderAllowed gender) {
 
-        return pgRepository.findByGenderAllowed(
-                GenderAllowed.valueOf(gender.toUpperCase()))
+        return pgRepository.findByGenderAllowed(gender)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
