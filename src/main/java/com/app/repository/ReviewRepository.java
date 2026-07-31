@@ -13,4 +13,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByPg_Id(Long pgId);
 
     List<Review> findByUser_Id(Long userId);
+
+
+	long countByUser_Id(Long userId);
+
 }

@@ -38,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Public APIs (Skip JWT Authentication)
         if (path.startsWith("/auth/")
+        		|| path.startsWith("/admin/")
                 || path.startsWith("/owner/")
                 || path.startsWith("/user/")
                 || path.startsWith("/pg/")
@@ -52,7 +53,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/email/")
                 || path.startsWith("/hello")
                 || path.startsWith("/test")
-                || path.startsWith("/image")) {
+                || path.startsWith("/image")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.equals("/swagger-ui.html")
+                || path.startsWith("/dashboard")) {
 
             filterChain.doFilter(request, response);
             return;

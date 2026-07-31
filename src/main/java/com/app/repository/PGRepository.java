@@ -24,6 +24,9 @@ public interface PGRepository extends JpaRepository<PG, Long> {
     List<PG> findByAvailableRoomsGreaterThan(int rooms);
     
     List<PG> findByOwner_Id(Long ownerId);
+  
+
+	long countByOwner_Id(Long ownerId);
 
 	
 }

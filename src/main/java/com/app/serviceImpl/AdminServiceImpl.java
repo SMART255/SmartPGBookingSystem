@@ -10,8 +10,14 @@ import com.app.repository.AdminRepository;
 import com.app.security.JwtUtil;
 import com.app.service.AdminService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class AdminServiceImpl implements AdminService {
+	
+	  private static final Logger logger =
+	            LoggerFactory.getLogger(AdminServiceImpl.class);
 
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
@@ -29,21 +35,26 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public AdminLoginResponse login(AdminLoginRequest request) {
 
+    	logger.info("Email received: {}", request.getEmail());
+    	
         Admin admin = adminRepository.findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new RuntimeException("Admin not found"));
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        if (!passwordEncoder.matches(
+        System.out.println("Entered Password: " + request.getPassword());
+        System.out.println("Stored Password: " + admin.getPassword());
+
+        boolean isMatch = passwordEncoder.matches(
                 request.getPassword(),
-                admin.getPassword())) {
+                admin.getPassword());
 
+        logger.info("Password Match: {}", isMatch);
+
+        if (!isMatch) {
             throw new RuntimeException("Invalid Password");
         }
 
         String token = jwtUtil.generateToken(admin.getEmail());
 
-        return new AdminLoginResponse(
-                token,
-                "Admin Login Successful");
+        return new AdminLoginResponse(token, "Admin Login Successful");
     }
 }

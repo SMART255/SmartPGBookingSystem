@@ -1,33 +1,35 @@
 package com.app.exception;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import java.time.LocalDateTime;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.app.dto.response.ApiResponse;
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String,String>> handleValidation(
-	        MethodArgumentNotValidException ex){
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiErrorResponse> handleRuntime(RuntimeException ex) {
 
-	    Map<String,String> errors = new HashMap<>();
+        ApiErrorResponse error = new ApiErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now());
 
-	    ex.getBindingResult().getFieldErrors().forEach(error->{
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 
-	        errors.put(error.getField(), error.getDefaultMessage());
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiErrorResponse> handleException(Exception ex) {
 
-	    });
+        ApiErrorResponse error = new ApiErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage(),
+                LocalDateTime.now());
 
-	    return new ResponseEntity<>(errors,HttpStatus.BAD_REQUEST);
-
-	}
-
+        return new ResponseEntity<>(error,
+                HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
